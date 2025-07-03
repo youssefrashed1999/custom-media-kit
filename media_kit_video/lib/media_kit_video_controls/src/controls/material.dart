@@ -652,6 +652,23 @@ class _MaterialVideoControlsState extends State<_MaterialVideoControls> {
     }
   }
 
+  void onMouseRegionHover() {
+    setState(() {
+      mount = true;
+      visible = true;
+    });
+    shiftSubtitle();
+    _timer?.cancel();
+  }
+
+  void onMouseRegionExit() {
+    setState(() {
+      visible = false;
+    });
+    unshiftSubtitle();
+    _timer?.cancel();
+  }
+
   void onTap() {
     if (!visible) {
       setState(() {
@@ -869,7 +886,10 @@ class _MaterialVideoControlsState extends State<_MaterialVideoControls> {
       /// Add [Directionality] to ltr to avoid wrong animation of sides.
       child: Directionality(
         textDirection: TextDirection.ltr,
-        child: Focus(
+        child: MouseRegion(
+            onHover: (_) => onMouseRegionHover(),
+            onExit: (_) => onMouseRegionExit(),
+            child: Focus(
           focusNode: videoViewParametersNotifier(context).value.focusNode,
           autofocus: true,
           child: Material(
@@ -911,9 +931,7 @@ class _MaterialVideoControlsState extends State<_MaterialVideoControls> {
                         top: 16.0,
                         right: 16.0,
                         bottom: 16.0 + subtitleVerticalShiftOffset,
-                        child: Listener(
-                          onPointerDown: (event) => _handlePointerDown(event),
-                          child: GestureDetector(
+                        child: GestureDetector(
                             onDoubleTapDown: _handleDoubleTapDown,
                             onLongPress: _theme(context).speedUpOnLongPress
                                 ? _handleLongPress
